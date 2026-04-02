@@ -36,7 +36,7 @@ RULES:
 You MUST respond with a JSON object with these exact fields:
 {
   "products": [
-    {"name": "Product Name", "brand": "Brand", "price": "$XX", "image": "url or null", "pros": ["pro1", "pro2"], "cons": ["con1", "con2"], "shopUrl": "https://www.google.com/search?tbm=shop&q=..."}
+    {"name": "Product Name", "brand": "Brand", "price": "SAR XX", "image": "url or null", "pros": ["pro1", "pro2"], "cons": ["con1", "con2"], "shopUrl": "https://www.amazon.sa/s?k=..."}
   ],
   "aiSummary": "Comparison summary text",
   "bestValue": "Product Name",

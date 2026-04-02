@@ -40,7 +40,7 @@ Return ONLY the JSON array, no other text.`;
 - Gender: ${gender}
 - Age: ${age}
 - Interests: ${interests}
-- Budget: $${minPrice || 0} – $${maxPrice || 10000}`;
+- Budget: SAR ${minPrice || 0} – SAR ${maxPrice || 10000}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
