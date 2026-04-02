@@ -27,11 +27,12 @@ RULES:
 - Only suggest REAL products with real brand names
 - Use realistic estimated prices in USD
 - Provide a short, warm explanation of why each gift fits the person
-- Return exactly 4 product suggestions
-- For each product, provide a real Unsplash image URL in this format: https://images.unsplash.com/photo-{id}?w=400&h=400&fit=crop (use real Unsplash photo IDs related to the product)
+- Return exactly 4 product suggestions (or fewer if you truly can't find 4)
+- For "shopUrl", generate a Google Shopping search URL: https://www.google.com/search?tbm=shop&q= followed by the URL-encoded product name and brand
+- For "image", try to provide a real product image URL from the manufacturer or a major retailer. If you cannot confidently provide a real working image URL, set image to null.
 
 You MUST respond with a JSON array of objects with these exact fields:
-[{"name": "Product Name", "brand": "Brand", "price": "$XX", "image": "https://images.unsplash.com/photo-xxx?w=400&h=400&fit=crop", "aiReason": "Why this gift fits"}]
+[{"name": "Product Name", "brand": "Brand", "price": "$XX", "image": "url or null", "aiReason": "Why this gift fits", "shopUrl": "https://www.google.com/search?tbm=shop&q=..."}]
 
 Return ONLY the JSON array, no other text.`;
 
@@ -48,7 +49,7 @@ Return ONLY the JSON array, no other text.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -74,9 +75,15 @@ Return ONLY the JSON array, no other text.`;
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "[]";
 
-    // Parse the JSON from the AI response
     const jsonMatch = content.match(/\[[\s\S]*\]/);
-    const products = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+    let products = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+
+    // Ensure shopUrl exists for each product
+    products = products.slice(0, 4).map((p: any) => ({
+      ...p,
+      image: p.image || null,
+      shopUrl: p.shopUrl || `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(`${p.name} ${p.brand || ""}`).trim()}`,
+    }));
 
     return new Response(JSON.stringify({ products }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

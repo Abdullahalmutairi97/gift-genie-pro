@@ -10,8 +10,9 @@ export interface ProductResult {
   name: string;
   brand?: string;
   price: string;
-  image: string;
+  image?: string;
   aiReason: string;
+  shopUrl?: string;
 }
 
 export interface CompareParams {
@@ -29,9 +30,10 @@ export interface CompareProduct {
   name: string;
   brand?: string;
   price: string;
-  image: string;
+  image?: string;
   pros: string[];
   cons: string[];
+  shopUrl?: string;
 }
 
 export interface AIProvider {

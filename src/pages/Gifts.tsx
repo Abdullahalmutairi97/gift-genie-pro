@@ -139,12 +139,14 @@ export default function GiftsPage() {
             <Sparkles className="h-5 w-5 text-primary" /> AI Suggestions
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
-            {results.map((product, i) => (
+            {results.slice(0, 4).map((product, i) => (
               <div key={i} className="glass-card overflow-hidden group hover:border-primary/30 transition-all premium-shadow animate-scale-in" style={{ animationDelay: `${i * 100}ms` }}>
-                <div className="aspect-[4/3] overflow-hidden bg-secondary">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                </div>
-                <div className="p-4 space-y-2">
+                {product.image && (
+                  <div className="aspect-[4/3] overflow-hidden bg-secondary">
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLElement).parentElement!.style.display = 'none'; }} />
+                  </div>
+                )}
+                <div className="p-4 space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <h4 className="font-semibold text-foreground">{product.name}</h4>
@@ -153,6 +155,11 @@ export default function GiftsPage() {
                     <span className="text-primary font-semibold shrink-0">{product.price}</span>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{product.aiReason}</p>
+                  <a href={product.shopUrl || `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(product.name)}`} target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" size="sm" className="w-full gap-2 mt-1">
+                      <ExternalLink className="h-3.5 w-3.5" /> Take me there
+                    </Button>
+                  </a>
                 </div>
               </div>
             ))}

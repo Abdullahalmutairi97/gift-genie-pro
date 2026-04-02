@@ -30,12 +30,13 @@ RULES:
 - Compare the searched product with 2 relevant alternatives (3 products total)
 - Write a helpful AI summary comparing all products
 - Pick a "bestValue" and optionally a "bestPremium" from the product names
-- For images, use real Unsplash URLs: https://images.unsplash.com/photo-{id}?w=400&h=400&fit=crop
+- For "shopUrl", generate a Google Shopping search URL: https://www.google.com/search?tbm=shop&q= followed by URL-encoded product name and brand
+- For "image", try to provide a real product image URL from the manufacturer or a major retailer. If you cannot confidently provide a real working image URL, set image to null.
 
 You MUST respond with a JSON object with these exact fields:
 {
   "products": [
-    {"name": "Product Name", "brand": "Brand", "price": "$XX", "image": "url", "pros": ["pro1", "pro2"], "cons": ["con1", "con2"]}
+    {"name": "Product Name", "brand": "Brand", "price": "$XX", "image": "url or null", "pros": ["pro1", "pro2"], "cons": ["con1", "con2"], "shopUrl": "https://www.google.com/search?tbm=shop&q=..."}
   ],
   "aiSummary": "Comparison summary text",
   "bestValue": "Product Name",
@@ -51,7 +52,7 @@ Return ONLY the JSON object, no other text.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Compare "${productName}" with its best alternatives.` },
@@ -79,6 +80,15 @@ Return ONLY the JSON object, no other text.`;
 
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     const result = jsonMatch ? JSON.parse(jsonMatch[0]) : { products: [], aiSummary: "No results", bestValue: "" };
+
+    // Ensure shopUrl exists for each product
+    if (result.products) {
+      result.products = result.products.map((p: any) => ({
+        ...p,
+        image: p.image || null,
+        shopUrl: p.shopUrl || `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(`${p.name} ${p.brand || ""}`).trim()}`,
+      }));
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
