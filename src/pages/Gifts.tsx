@@ -7,19 +7,17 @@ import { useHistory } from "@/contexts/HistoryContext";
 import { getAIProvider, ProductResult } from "@/services/ai";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { BuyCreditsDialog } from "@/components/BuyCreditsDialog";
-import { Search, Sparkles, AlertCircle, RotateCcw, Gift, ExternalLink } from "lucide-react";
+import { Sparkles, AlertCircle, RotateCcw, Gift, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 export default function GiftsPage() {
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
   const [interests, setInterests] = useState("");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<ProductResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { credits, deductCredits, hasEnough } = useCredits();
+  const { deductCredits, hasEnough } = useCredits();
   const { addHistory } = useHistory();
 
   const handleSearch = async () => {
@@ -42,16 +40,11 @@ export default function GiftsPage() {
         gender,
         age,
         interests: interests.trim(),
-        minPrice: parseInt(minPrice) || 0,
-        maxPrice: parseInt(maxPrice) || 10000,
+        minPrice: 0,
+        maxPrice: 10000,
       });
       setResults(res);
-      addHistory({
-        type: "gift",
-        query: `${gender}, ${age}yo, ${interests}`,
-        creditsUsed: 5,
-        results: res,
-      });
+      addHistory({ type: "gift", query: `${gender}, ${age}yo, ${interests}`, creditsUsed: 5, results: res });
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -86,16 +79,6 @@ export default function GiftsPage() {
         <div className="space-y-1.5">
           <label className="text-sm font-medium">Interests & Hobbies</label>
           <Input placeholder="e.g. technology, fitness, reading" value={interests} onChange={(e) => setInterests(e.target.value)} />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">Min Price ($)</label>
-            <Input type="number" placeholder="0" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">Max Price ($)</label>
-            <Input type="number" placeholder="500" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
-          </div>
         </div>
         <div className="flex items-center justify-between pt-2">
           <span className="text-xs text-muted-foreground">This will use 5 credits</span>
@@ -152,10 +135,12 @@ export default function GiftsPage() {
                       <h4 className="font-semibold text-foreground">{product.name}</h4>
                       {product.brand && <p className="text-xs text-muted-foreground">{product.brand}</p>}
                     </div>
-                    <span className="text-primary font-semibold shrink-0">{product.price}</span>
+                    <span className="text-primary font-semibold shrink-0 px-2 py-0.5 rounded-md bg-primary/10 transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:scale-110 hover:-translate-y-0.5 cursor-default">
+                      {product.price}
+                    </span>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{product.aiReason}</p>
-                  <a href={product.shopUrl || `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(product.name)}`} target="_blank" rel="noopener noreferrer">
+                  <a href={product.shopUrl || `https://www.amazon.sa/s?k=${encodeURIComponent(product.name)}`} target="_blank" rel="noopener noreferrer">
                     <Button variant="outline" size="sm" className="w-full gap-2 mt-1">
                       <ExternalLink className="h-3.5 w-3.5" /> Take me there
                     </Button>
