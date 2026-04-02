@@ -28,7 +28,7 @@ RULES:
 - Use realistic estimated prices in USD
 - Provide a short, warm explanation of why each gift fits the person
 - Return exactly 4 product suggestions (or fewer if you truly can't find 4)
-- For "shopUrl", generate a Google Shopping search URL: https://www.google.com/search?tbm=shop&q= followed by the URL-encoded product name and brand
+- For "shopUrl", generate a search URL on a real Saudi shopping site. Prefer these in order: https://www.amazon.sa/s?k= , https://www.noon.com/saudi-en/search?q= , https://www.jarir.com/sa-en/catalogsearch/result/?q= , or https://www.aliexpress.com/wholesale?SearchText= . Pick whichever site is most likely to carry the product.
 - For "image", try to provide a real product image URL from the manufacturer or a major retailer. If you cannot confidently provide a real working image URL, set image to null.
 
 You MUST respond with a JSON array of objects with these exact fields:
@@ -82,7 +82,7 @@ Return ONLY the JSON array, no other text.`;
     products = products.slice(0, 4).map((p: any) => ({
       ...p,
       image: p.image || null,
-      shopUrl: p.shopUrl || `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(`${p.name} ${p.brand || ""}`).trim()}`,
+      shopUrl: p.shopUrl || `https://www.amazon.sa/s?k=${encodeURIComponent(`${p.name} ${p.brand || ""}`.trim())}`,
     }));
 
     return new Response(JSON.stringify({ products }), {
