@@ -25,7 +25,7 @@ serve(async (req) => {
 
 RULES:
 - Only suggest REAL products with real brand names
-- Use realistic estimated prices in USD
+- Use realistic estimated prices in SAR (Saudi Riyal). Format as "SAR XX" (e.g. "SAR 150")
 - Provide a short, warm explanation of why each gift fits the person
 - Return exactly 4 product suggestions (or fewer if you truly can't find 4)
 - For "shopUrl", generate a search URL on a real Saudi shopping site. Prefer these in order: https://www.amazon.sa/s?k= , https://www.noon.com/saudi-en/search?q= , https://www.jarir.com/sa-en/catalogsearch/result/?q= , or https://www.aliexpress.com/wholesale?SearchText= . Pick whichever site is most likely to carry the product.
