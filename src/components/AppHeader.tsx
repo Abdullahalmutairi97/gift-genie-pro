@@ -1,4 +1,3 @@
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCredits } from "@/contexts/CreditsContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -16,10 +15,7 @@ export function AppHeader({ title }: AppHeaderProps) {
 
   return (
     <header className="h-14 flex items-center justify-between px-4 border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-30">
-      <div className="flex items-center gap-3">
-        <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-        <h1 className="font-display text-lg font-semibold text-foreground">{title}</h1>
-      </div>
+      <h1 className="font-display text-lg font-semibold text-foreground">{title}</h1>
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
           <Coins className="h-4 w-4" />
