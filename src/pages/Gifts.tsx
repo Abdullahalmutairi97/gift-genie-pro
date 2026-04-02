@@ -7,7 +7,7 @@ import { useHistory } from "@/contexts/HistoryContext";
 import { getAIProvider, ProductResult } from "@/services/ai";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { BuyCreditsDialog } from "@/components/BuyCreditsDialog";
-import { Search, Sparkles, AlertCircle, RotateCcw, Gift } from "lucide-react";
+import { Search, Sparkles, AlertCircle, RotateCcw, Gift, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 export default function GiftsPage() {
