@@ -1,72 +1,129 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-interface User {
+interface Profile {
   phone: string;
   name: string;
+  user_id: string;
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: Profile | null;
   isAuthenticated: boolean;
-  signIn: (phone: string) => User | null;
-  register: (phone: string, name: string) => User;
+  loading: boolean;
+  sendOtp: (phone: string) => Promise<{ success: boolean; error?: string }>;
+  verifyOtp: (phone: string, code: string) => Promise<{ success: boolean; isNewUser?: boolean; error?: string }>;
+  registerUser: (phone: string, name: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => void;
-  checkUserExists: (phone: string) => User | null;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const USERS_KEY = "muhtar_users";
-const SESSION_KEY = "muhtar_session";
-
-function getStoredUsers(): User[] {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const s = localStorage.getItem(SESSION_KEY);
-      return s ? JSON.parse(s) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    else localStorage.removeItem(SESSION_KEY);
-  }, [user]);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .single();
+        if (profile) {
+          setUser({ phone: profile.phone, name: profile.name, user_id: profile.user_id });
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
 
-  const checkUserExists = (phone: string): User | null => {
-    return getStoredUsers().find((u) => u.phone === phone) || null;
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .single();
+        if (profile) {
+          setUser({ phone: profile.phone, name: profile.name, user_id: profile.user_id });
+        }
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const sendOtp = async (phone: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("otp-auth", {
+        body: { action: "send", phone },
+      });
+      if (error) return { success: false, error: error.message };
+      if (data?.error) return { success: false, error: data.error };
+      return { success: true };
+    } catch {
+      return { success: false, error: "Failed to send OTP" };
+    }
   };
 
-  const signIn = (phone: string): User | null => {
-    const found = checkUserExists(phone);
-    if (found) setUser(found);
-    return found;
+  const verifyOtp = async (phone: string, code: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("otp-auth", {
+        body: { action: "verify", phone, code },
+      });
+      if (error) return { success: false, error: error.message };
+      if (data?.error) return { success: false, error: data.error };
+
+      if (!data.isNewUser && data.actionLink) {
+        // Extract token from action link and verify
+        const url = new URL(data.actionLink);
+        const token = url.searchParams.get("token") || url.hash;
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: data.token,
+          type: "magiclink",
+        });
+        if (verifyError) return { success: false, error: verifyError.message };
+      }
+
+      return { success: true, isNewUser: data.isNewUser };
+    } catch {
+      return { success: false, error: "Verification failed" };
+    }
   };
 
-  const register = (phone: string, name: string): User => {
-    const newUser = { phone, name };
-    const users = getStoredUsers();
-    users.push(newUser);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    setUser(newUser);
-    return newUser;
+  const registerUser = async (phone: string, name: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("otp-auth", {
+        body: { action: "register", phone, name },
+      });
+      if (error) return { success: false, error: error.message };
+      if (data?.error) return { success: false, error: data.error };
+
+      if (data.actionLink) {
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: data.token,
+          type: "magiclink",
+        });
+        if (verifyError) return { success: false, error: verifyError.message };
+      }
+
+      return { success: true };
+    } catch {
+      return { success: false, error: "Registration failed" };
+    }
   };
 
-  const signOut = () => {
+  const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, signIn, register, signOut, checkUserExists }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, loading, sendOtp, verifyOtp, registerUser, signOut }}>
       {children}
     </AuthContext.Provider>
   );
