@@ -6,7 +6,7 @@ import { useHistory } from "@/contexts/HistoryContext";
 import { getAIProvider, CompareResult } from "@/services/ai";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { BuyCreditsDialog } from "@/components/BuyCreditsDialog";
-import { Search, Sparkles, AlertCircle, RotateCcw, Check, X, Trophy, Crown } from "lucide-react";
+import { Search, Sparkles, AlertCircle, RotateCcw, Check, X, Trophy, Crown, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ComparePage() {
@@ -111,9 +111,11 @@ export default function ComparePage() {
                       {isBestValue ? "Best Value" : "Premium Choice"}
                     </div>
                   )}
-                  <div className="aspect-[4/3] overflow-hidden bg-secondary">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                  </div>
+                  {product.image && (
+                    <div className="aspect-[4/3] overflow-hidden bg-secondary">
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLElement).parentElement!.style.display = 'none'; }} />
+                    </div>
+                  )}
                   <div className="p-4 space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div>
@@ -136,6 +138,11 @@ export default function ComparePage() {
                         </div>
                       ))}
                     </div>
+                    <a href={product.shopUrl || `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(product.name)}`} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm" className="w-full gap-2 mt-1">
+                        <ExternalLink className="h-3.5 w-3.5" /> Take me there
+                      </Button>
+                    </a>
                   </div>
                 </div>
               );
