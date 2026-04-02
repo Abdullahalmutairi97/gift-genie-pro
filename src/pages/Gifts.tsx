@@ -2,18 +2,28 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { useCredits } from "@/contexts/CreditsContext";
 import { useHistory } from "@/contexts/HistoryContext";
 import { getAIProvider, ProductResult } from "@/services/ai";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { BuyCreditsDialog } from "@/components/BuyCreditsDialog";
-import { Sparkles, AlertCircle, RotateCcw, Gift, ExternalLink } from "lucide-react";
+import { Sparkles, AlertCircle, RotateCcw, Gift, ExternalLink, Wallet } from "lucide-react";
 import { toast } from "sonner";
+
+const MIN_BUDGET = 100;
+const MAX_BUDGET = 25000;
+
+function formatSAR(value: number) {
+  return `SAR ${value.toLocaleString()}`;
+}
 
 export default function GiftsPage() {
   const [gender, setGender] = useState("");
   const [age, setAge] = useState("");
   const [interests, setInterests] = useState("");
+  const [budget, setBudget] = useState([500]);
+  const [isHoveringSlider, setIsHoveringSlider] = useState(false);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<ProductResult[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -40,11 +50,11 @@ export default function GiftsPage() {
         gender,
         age,
         interests: interests.trim(),
-        minPrice: 0,
-        maxPrice: 10000,
+        minPrice: MIN_BUDGET,
+        maxPrice: budget[0],
       });
       setResults(res);
-      addHistory({ type: "gift", query: `${gender}, ${age}yo, ${interests}`, creditsUsed: 5, results: res });
+      addHistory({ type: "gift", query: `${gender}, ${age}yo, ${interests}, ≤${formatSAR(budget[0])}`, creditsUsed: 5, results: res });
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -80,6 +90,41 @@ export default function GiftsPage() {
           <label className="text-sm font-medium">Interests & Hobbies</label>
           <Input placeholder="e.g. technology, fitness, reading" value={interests} onChange={(e) => setInterests(e.target.value)} />
         </div>
+
+        {/* Budget Slider */}
+        <div
+          className="space-y-3"
+          onMouseEnter={() => setIsHoveringSlider(true)}
+          onMouseLeave={() => setIsHoveringSlider(false)}
+        >
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium flex items-center gap-1.5">
+              <Wallet className="h-4 w-4 text-primary" /> Budget
+            </label>
+            <span
+              className={`text-sm font-semibold px-3 py-1 rounded-full transition-all duration-300 ${
+                isHoveringSlider
+                  ? "bg-primary text-primary-foreground scale-110 shadow-lg"
+                  : "bg-primary/10 text-primary"
+              }`}
+            >
+              ≤ {formatSAR(budget[0])}
+            </span>
+          </div>
+          <Slider
+            value={budget}
+            onValueChange={setBudget}
+            min={MIN_BUDGET}
+            max={MAX_BUDGET}
+            step={100}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{formatSAR(MIN_BUDGET)}</span>
+            <span>{formatSAR(MAX_BUDGET)}</span>
+          </div>
+        </div>
+
         <div className="flex items-center justify-between pt-2">
           <span className="text-xs text-muted-foreground">This will use 5 credits</span>
           {!hasEnough() ? (

@@ -9,7 +9,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { gender, age, interests } = await req.json();
+    const { gender, age, interests, minPrice, maxPrice } = await req.json();
+    const budgetMin = minPrice || 100;
+    const budgetMax = maxPrice || 25000;
 
     if (!gender || !age || !interests) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), {
