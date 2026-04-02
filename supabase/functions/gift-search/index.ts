@@ -32,7 +32,7 @@ RULES:
 - For "image", try to provide a real product image URL from the manufacturer or a major retailer. If you cannot confidently provide a real working image URL, set image to null.
 
 You MUST respond with a JSON array of objects with these exact fields:
-[{"name": "Product Name", "brand": "Brand", "price": "$XX", "image": "url or null", "aiReason": "Why this gift fits", "shopUrl": "https://www.google.com/search?tbm=shop&q=..."}]
+[{"name": "Product Name", "brand": "Brand", "price": "SAR XX", "image": "url or null", "aiReason": "Why this gift fits", "shopUrl": "https://www.amazon.sa/s?k=..."}]
 
 Return ONLY the JSON array, no other text.`;
 
