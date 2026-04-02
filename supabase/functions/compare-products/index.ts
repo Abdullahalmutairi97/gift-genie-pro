@@ -25,18 +25,18 @@ serve(async (req) => {
 
 RULES:
 - Only use REAL products with real brand names
-- Use realistic estimated prices in SAR (Saudi Riyal). Format as "SAR XX" (e.g. "SAR 150")
+- For the price, provide a realistic SAR price RANGE based on what the product actually costs on Saudi retailers. Format exactly as "SAR XX – SAR YY" (e.g. "SAR 800 – SAR 1200"). Research the actual retail price carefully. Do NOT guess.
 - Provide 2-3 real pros and 2-3 real cons per product
 - Compare the searched product with 2 relevant alternatives (3 products total)
 - Write a helpful AI summary comparing all products
 - Pick a "bestValue" and optionally a "bestPremium" from the product names
-- For "shopUrl", generate a search URL on a real Saudi shopping site. Prefer these in order: https://www.amazon.sa/s?k= , https://www.noon.com/saudi-en/search?q= , https://www.jarir.com/sa-en/catalogsearch/result/?q= , or https://www.aliexpress.com/wholesale?SearchText= . Pick whichever site is most likely to carry the product.
-- For "image", try to provide a real product image URL from the manufacturer or a major retailer. If you cannot confidently provide a real working image URL, set image to null.
+- For "shopUrl", generate a search URL on a real Saudi shopping site. Prefer: https://www.amazon.sa/s?k= , https://www.noon.com/saudi-en/search?q= , https://www.jarir.com/sa-en/catalogsearch/result/?q= , or https://www.aliexpress.com/wholesale?SearchText=
+- For "image", set to null. Do not invent image URLs.
 
 You MUST respond with a JSON object with these exact fields:
 {
   "products": [
-    {"name": "Product Name", "brand": "Brand", "price": "SAR XX", "image": "url or null", "pros": ["pro1", "pro2"], "cons": ["con1", "con2"], "shopUrl": "https://www.amazon.sa/s?k=..."}
+    {"name": "Product Name", "brand": "Brand", "price": "SAR XX – SAR YY", "image": null, "pros": ["pro1", "pro2"], "cons": ["con1", "con2"], "shopUrl": "https://www.amazon.sa/s?k=..."}
   ],
   "aiSummary": "Comparison summary text",
   "bestValue": "Product Name",
@@ -81,7 +81,6 @@ Return ONLY the JSON object, no other text.`;
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     const result = jsonMatch ? JSON.parse(jsonMatch[0]) : { products: [], aiSummary: "No results", bestValue: "" };
 
-    // Ensure shopUrl exists for each product
     if (result.products) {
       result.products = result.products.map((p: any) => ({
         ...p,
