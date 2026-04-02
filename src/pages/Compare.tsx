@@ -6,7 +6,7 @@ import { useHistory } from "@/contexts/HistoryContext";
 import { getAIProvider, CompareResult } from "@/services/ai";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { BuyCreditsDialog } from "@/components/BuyCreditsDialog";
-import { Search, Sparkles, AlertCircle, RotateCcw, Check, X, Trophy, Crown } from "lucide-react";
+import { Search, Sparkles, AlertCircle, RotateCcw, Check, X, Trophy, Crown, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ComparePage() {
