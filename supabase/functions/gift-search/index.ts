@@ -82,7 +82,7 @@ Return ONLY the JSON array, no other text.`;
     products = products.slice(0, 4).map((p: any) => ({
       ...p,
       image: p.image || null,
-      shopUrl: p.shopUrl || `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(`${p.name} ${p.brand || ""}`).trim()}`,
+      shopUrl: p.shopUrl || `https://www.amazon.sa/s?k=${encodeURIComponent(`${p.name} ${p.brand || ""}`.trim())}`,
     }));
 
     return new Response(JSON.stringify({ products }), {

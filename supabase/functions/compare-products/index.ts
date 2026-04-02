@@ -86,7 +86,7 @@ Return ONLY the JSON object, no other text.`;
       result.products = result.products.map((p: any) => ({
         ...p,
         image: p.image || null,
-        shopUrl: p.shopUrl || `https://www.google.com/search?tbm=shop&q=${encodeURIComponent(`${p.name} ${p.brand || ""}`).trim()}`,
+        shopUrl: p.shopUrl || `https://www.amazon.sa/s?k=${encodeURIComponent(`${p.name} ${p.brand || ""}`.trim())}`,
       }));
     }
 
