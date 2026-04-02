@@ -27,7 +27,8 @@ serve(async (req) => {
 
 RULES:
 - Only suggest REAL products that are currently sold on Amazon.sa, Noon.com, Jarir.com, or AliExpress
-- For the price, provide a realistic SAR price RANGE based on what the product actually costs on Saudi retailers. Format exactly as "SAR XX – SAR YY" (e.g. "SAR 120 – SAR 180"). Research the actual retail price carefully. Do NOT guess.
+- The user has a budget of SAR ${budgetMin} to SAR ${budgetMax}. ALL suggestions MUST cost LESS THAN or EQUAL TO SAR ${budgetMax}.
+- For the price, provide a realistic SAR price RANGE based on what the product actually costs on Saudi retailers. Format exactly as "SAR XX – SAR YY" (e.g. "SAR 120 – SAR 180"). The upper end MUST NOT exceed SAR ${budgetMax}. Research the actual retail price carefully. Do NOT guess.
 - Provide a short, warm explanation of why each gift fits the person
 - Return exactly 4 product suggestions (or fewer if you truly can't find 4)
 - For "shopUrl", generate a direct search URL on a real Saudi shopping site. Prefer: https://www.amazon.sa/s?k= , https://www.noon.com/saudi-en/search?q= , https://www.jarir.com/sa-en/catalogsearch/result/?q= , or https://www.aliexpress.com/wholesale?SearchText=
@@ -41,7 +42,8 @@ Return ONLY the JSON array, no other text.`;
     const userPrompt = `Find gift suggestions for:
 - Gender: ${gender}
 - Age: ${age}
-- Interests: ${interests}`;
+- Interests: ${interests}
+- Budget: SAR ${budgetMin} – SAR ${budgetMax} (do NOT exceed this)`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
