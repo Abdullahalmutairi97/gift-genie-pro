@@ -122,7 +122,7 @@ export default function ComparePage() {
                         <h4 className="font-semibold">{product.name}</h4>
                         {product.brand && <p className="text-xs text-muted-foreground">{product.brand}</p>}
                       </div>
-                      <span className="text-primary font-semibold">{product.price}</span>
+                      <span className="text-primary font-semibold px-2 py-0.5 rounded-md bg-primary/10 transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:scale-110 hover:-translate-y-0.5 cursor-default">{product.price}</span>
                     </div>
                     <div className="space-y-1.5">
                       {product.pros.map((pro, j) => (
