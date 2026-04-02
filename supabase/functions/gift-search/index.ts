@@ -9,7 +9,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { gender, age, interests, minPrice, maxPrice } = await req.json();
+    const { gender, age, interests } = await req.json();
 
     if (!gender || !age || !interests) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), {
@@ -24,23 +24,22 @@ serve(async (req) => {
     const systemPrompt = `You are Muhtar, an AI gift discovery assistant. You suggest real, purchasable products as gift ideas.
 
 RULES:
-- Only suggest REAL products with real brand names
-- Use realistic estimated prices in SAR (Saudi Riyal). Format as "SAR XX" (e.g. "SAR 150")
+- Only suggest REAL products that are currently sold on Amazon.sa, Noon.com, Jarir.com, or AliExpress
+- For the price, provide a realistic SAR price RANGE based on what the product actually costs on Saudi retailers. Format exactly as "SAR XX – SAR YY" (e.g. "SAR 120 – SAR 180"). Research the actual retail price carefully. Do NOT guess.
 - Provide a short, warm explanation of why each gift fits the person
 - Return exactly 4 product suggestions (or fewer if you truly can't find 4)
-- For "shopUrl", generate a search URL on a real Saudi shopping site. Prefer these in order: https://www.amazon.sa/s?k= , https://www.noon.com/saudi-en/search?q= , https://www.jarir.com/sa-en/catalogsearch/result/?q= , or https://www.aliexpress.com/wholesale?SearchText= . Pick whichever site is most likely to carry the product.
-- For "image", try to provide a real product image URL from the manufacturer or a major retailer. If you cannot confidently provide a real working image URL, set image to null.
+- For "shopUrl", generate a direct search URL on a real Saudi shopping site. Prefer: https://www.amazon.sa/s?k= , https://www.noon.com/saudi-en/search?q= , https://www.jarir.com/sa-en/catalogsearch/result/?q= , or https://www.aliexpress.com/wholesale?SearchText=
+- For "image", set to null. Do not invent image URLs.
 
 You MUST respond with a JSON array of objects with these exact fields:
-[{"name": "Product Name", "brand": "Brand", "price": "SAR XX", "image": "url or null", "aiReason": "Why this gift fits", "shopUrl": "https://www.amazon.sa/s?k=..."}]
+[{"name": "Product Name", "brand": "Brand", "price": "SAR XX – SAR YY", "image": null, "aiReason": "Why this gift fits", "shopUrl": "https://www.amazon.sa/s?k=..."}]
 
 Return ONLY the JSON array, no other text.`;
 
     const userPrompt = `Find gift suggestions for:
 - Gender: ${gender}
 - Age: ${age}
-- Interests: ${interests}
-- Budget: SAR ${minPrice || 0} – SAR ${maxPrice || 10000}`;
+- Interests: ${interests}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -78,7 +77,6 @@ Return ONLY the JSON array, no other text.`;
     const jsonMatch = content.match(/\[[\s\S]*\]/);
     let products = jsonMatch ? JSON.parse(jsonMatch[0]) : [];
 
-    // Ensure shopUrl exists for each product
     products = products.slice(0, 4).map((p: any) => ({
       ...p,
       image: p.image || null,
