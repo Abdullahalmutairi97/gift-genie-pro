@@ -25,7 +25,7 @@ serve(async (req) => {
 
 RULES:
 - Only use REAL products with real brand names
-- Use realistic estimated prices in USD
+- Use realistic estimated prices in SAR (Saudi Riyal). Format as "SAR XX" (e.g. "SAR 150")
 - Provide 2-3 real pros and 2-3 real cons per product
 - Compare the searched product with 2 relevant alternatives (3 products total)
 - Write a helpful AI summary comparing all products
@@ -36,7 +36,7 @@ RULES:
 You MUST respond with a JSON object with these exact fields:
 {
   "products": [
-    {"name": "Product Name", "brand": "Brand", "price": "$XX", "image": "url or null", "pros": ["pro1", "pro2"], "cons": ["con1", "con2"], "shopUrl": "https://www.google.com/search?tbm=shop&q=..."}
+    {"name": "Product Name", "brand": "Brand", "price": "SAR XX", "image": "url or null", "pros": ["pro1", "pro2"], "cons": ["con1", "con2"], "shopUrl": "https://www.amazon.sa/s?k=..."}
   ],
   "aiSummary": "Comparison summary text",
   "bestValue": "Product Name",
