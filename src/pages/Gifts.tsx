@@ -54,7 +54,7 @@ export default function GiftsPage() {
         maxPrice: budget[0],
       });
       setResults(res);
-      addHistory({ type: "gift", query: `${gender}, ${age}yo, ${interests}, ≤${formatSAR(budget[0])}`, creditsUsed: 5, results: res });
+      addHistory({ type: "gift", query: `${gender}, ${age}yo, ${interests}, Less Than ${formatSAR(budget[0])}`, creditsUsed: 5, results: res });
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
