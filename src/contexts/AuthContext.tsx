@@ -104,16 +104,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) return { success: false, error: error.message };
       if (data?.error) return { success: false, error: data.error };
 
-      if (data.actionLink) {
+      if (data.token) {
         const { error: verifyError } = await supabase.auth.verifyOtp({
           token_hash: data.token,
           type: "magiclink",
         });
-        if (verifyError) return { success: false, error: verifyError.message };
+        if (verifyError) {
+          console.error("Auth register verifyOtp error:", verifyError);
+          return { success: false, error: verifyError.message };
+        }
       }
 
       return { success: true };
-    } catch {
+    } catch (e) {
+      console.error("registerUser catch:", e);
       return { success: false, error: "Registration failed" };
     }
   };
