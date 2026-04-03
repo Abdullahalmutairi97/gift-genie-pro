@@ -108,7 +108,7 @@ export default function GiftsPage() {
                   : "bg-primary/10 text-primary"
               }`}
             >
-              ≤ {formatSAR(budget[0])}
+              Less Than {formatSAR(budget[0])}
             </span>
           </div>
           <Slider
