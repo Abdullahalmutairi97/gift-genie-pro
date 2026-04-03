@@ -78,19 +78,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) return { success: false, error: error.message };
       if (data?.error) return { success: false, error: data.error };
 
-      if (!data.isNewUser && data.actionLink) {
-        // Extract token from action link and verify
-        const url = new URL(data.actionLink);
-        const token = url.searchParams.get("token") || url.hash;
+      if (!data.isNewUser && data.token) {
         const { error: verifyError } = await supabase.auth.verifyOtp({
           token_hash: data.token,
           type: "magiclink",
         });
-        if (verifyError) return { success: false, error: verifyError.message };
+        if (verifyError) {
+          console.error("Auth verifyOtp error:", verifyError);
+          return { success: false, error: verifyError.message };
+        }
       }
 
       return { success: true, isNewUser: data.isNewUser };
-    } catch {
+    } catch (e) {
+      console.error("verifyOtp catch:", e);
       return { success: false, error: "Verification failed" };
     }
   };
